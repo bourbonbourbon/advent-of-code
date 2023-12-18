@@ -11,7 +11,7 @@ def check_matrix(star, numbers):
     matched_nums = []
     for number in numbers: # three lists
         for l in number:
-            if (l[0] - 1 == star[0]) or (l[0] == star[0]) or (l[0] + 1 == star[0]) or (l[1] - 1 == star[1]) or (l[1] == star[1]) or (l[1] + 1 == star[1]):
+            if star[0] in [l[0] - 1, l[0], l[0] + 1] or star[1] in [l[1] - 1, l[1], l[1] + 1]:
                 matched_nums.append(l[2])
     if len(matched_nums) == 2:
         return matched_nums[0] * matched_nums[1]
@@ -27,7 +27,7 @@ num_re = re.compile(r"(\d+)")
 star_re = re.compile(r"[*]")
 total = 0
 for i in range(1, last_row - 1):
-    for match in star_re.finditer(*data[i]):
+    for match in star_re.finditer(data[i][0]):
         numbers = [builder(*data[i - 1]),
                    builder(*data[i]), builder(*data[i + 1])]
         total += check_matrix(star=(match.start(), match.end()), numbers=numbers)

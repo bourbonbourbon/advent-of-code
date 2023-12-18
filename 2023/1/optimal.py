@@ -8,7 +8,7 @@ with open("input.txt") as f:
 
 def calibration(data):
     ls = data.split("\n")
-    ns = [re.findall("\d", x) for x in ls]
+    ns = [re.findall(r"\d", x) for x in ls]
     return sum(int(n[0] + n[-1]) for n in ns)
 
 

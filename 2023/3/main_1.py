@@ -63,7 +63,7 @@ check_list = list(range(10)) + [".", "\n"]
 p = re.compile(r"(\d+)")
 total = 0
 for i in range(last_row):
-    for match in p.finditer(*data[i]):
+    for match in p.finditer(data[i][0]):
         start, end = match.span()
         total += check_matrix(start, end, int(match.group(0)), i)
 

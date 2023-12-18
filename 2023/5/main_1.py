@@ -1,13 +1,18 @@
 import re
 
+
 def parse_numbers(line):
-    nums_re = re.compile("(\d+)")
+    nums_re = re.compile(r"(\d+)")
     return [int(match) for match in nums_re.findall(line)]
+
 
 def map_gen(name, index):
     r = re.compile(rf"{name}{maps_re}")
     values = r.search(data)
+    if values is None:
+        return None
     l = []
+    c = []
     for line in values.group(1).strip().split("\n"):
         destination, source, steps = parse_numbers(line)
         if index == 0:
@@ -25,6 +30,7 @@ def map_gen(name, index):
         if num not in c2:
             l.append((num, num))
     return l
+
 
 def solve_seeds(maps):
     seed_location = {}
@@ -46,7 +52,7 @@ with open("input.txt", "r") as file:
 seeds = []
 maps = []
 
-uni_re = "((?:\d+\s)+)"
+uni_re = r"((?:\d+\s)+)"
 
 seeds_re = re.compile(rf"seeds: {uni_re}")
 seeds = parse_numbers(*seeds_re.findall(data))
