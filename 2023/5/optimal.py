@@ -1,3 +1,4 @@
+# https://www.reddit.com/r/adventofcode/comments/18b4b0r/comment/kc3q9c6/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 import sys
 
 with open('input.txt', 'r') as file:
