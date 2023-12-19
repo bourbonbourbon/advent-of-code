@@ -1,119 +1,32 @@
-# https://www.reddit.com/r/adventofcode/comments/18b4b0r/comment/kc3q9c6/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
-import sys
+# https://github.com/hyper-neutrino/advent-of-code/blob/main/2023/day05p2.py
+inputs, *blocks = open("input.txt").read().split("\n\n")
 
-with open('input.txt', 'r') as file:
-    lines = [l.strip() for l in file]
+inputs = list(map(int, inputs.split(":")[1].split()))
 
-orig_seeds = list(map(int, lines[0].split(': ')[1].split()))
-seeds = orig_seeds[:]
-for i in range(0, len(seeds), 2):
-  seeds[i+1] = seeds[i] + seeds[i+1] - 1
-seeds = sorted(seeds)
-print(seeds)
+seeds = []
 
+for i in range(0, len(inputs), 2):
+    seeds.append((inputs[i], inputs[i] + inputs[i + 1]))
 
-def parse_map(start):
-  ln = start
-  assert lines[ln].endswith('map:'), (lines[ln])
-  ln += 1
-  map_info = []
-  while ln < len(lines) and lines[ln]:
-    (d_start, s_start, rlen) = list(map(int, lines[ln].split()))
-    map_info.append((d_start, s_start, rlen))
-    ln += 1
-  return ln + 1, map_info
+for block in blocks:
+    ranges = []
+    for line in block.splitlines()[1:]:
+        ranges.append(list(map(int, line.split())))
+    new = []
+    while len(seeds) > 0:
+        s, e = seeds.pop()
+        for a, b, c in ranges:
+            os = max(s, b)
+            oe = min(e, b + c)
+            if os < oe:
+                new.append((os - b + a, oe - b + a))
+                if os > s:
+                    seeds.append((s, os))
+                if e > oe:
+                    seeds.append((oe, e))
+                break
+        else:
+            new.append((s, e))
+    seeds = new
 
-
-ln, seed2soil = parse_map(2)
-ln, soil2fert = parse_map(ln)
-ln, fert2water = parse_map(ln)
-ln, water2light = parse_map(ln)
-ln, light2temp = parse_map(ln)
-ln, temp2humid = parse_map(ln)
-ln, humid2location = parse_map(ln)
-
-
-def lookup_map(map_info, x):
-  for (d_start, s_start, rlen) in map_info:
-    if s_start <= x < s_start + rlen:
-      return d_start + (x - s_start)
-  return x
-
-
-def seed2location(seed):
-  soil = lookup_map(seed2soil, seed)
-  fert = lookup_map(soil2fert, soil)
-  water = lookup_map(fert2water, fert)
-  light = lookup_map(water2light, water)
-  temp = lookup_map(light2temp, light)
-  humid = lookup_map(temp2humid, temp)
-  location = lookup_map(humid2location, humid)
-  return location
-
-
-print('Part 1:')
-print(min([seed2location(s) for s in orig_seeds]))
-
-
-def inverse_lookup_map(map_info, y):
-  for (d_start, s_start, rlen) in map_info:
-    if d_start <= y < d_start + rlen:
-      return s_start + (y - d_start)
-  return y
-
-
-def invert_map(map_info, output_endpts):
-  if output_endpts:
-    assert sorted(output_endpts) == output_endpts, output_endpts
-    assert len(set(output_endpts)) == len(output_endpts), output_endpts
-  map_endpts = [[(d_start, s_start), (d_start + rlen - 1, s_start + rlen - 1)]
-                for (d_start, s_start, rlen) in map_info]
-  map_endpts = [mpt for mpts in map_endpts for mpt in mpts]
-  map_endpts.sort()
-
-  output_src_endpts = sorted(
-      [inverse_lookup_map(map_info, y) for y in output_endpts])
-  assert len(set(output_src_endpts)) == len(
-      output_src_endpts), (output_src_endpts, output_endpts, map_info)
-  input_src_endpts = sorted(set([x for (y, x) in map_endpts]))
-  if input_src_endpts[0] > 0:
-    input_src_endpts = [0, input_src_endpts[0] - 1] + input_src_endpts
-  if input_src_endpts[-1] < sys.maxsize:
-    input_src_endpts = input_src_endpts + \
-        [input_src_endpts[-1] + 1, sys.maxsize]
-  input_endpts = sorted(set(output_src_endpts) | set(input_src_endpts))
-
-  print()
-  print('inverting map', map_info)
-  print('output_endpts', output_endpts)
-  print('map_endpts', map_endpts)
-  print('output_src_endpts', output_src_endpts)
-  print('input_src_endpts', input_src_endpts)
-  print('input_endpts', input_endpts)
-  print()
-
-  return input_endpts
-
-
-humid_endpts = invert_map(humid2location, [0, sys.maxsize])
-temp_endpts = invert_map(temp2humid, humid_endpts)
-light_endpts = invert_map(light2temp, temp_endpts)
-water_endpts = invert_map(water2light, light_endpts)
-fert_endpts = invert_map(fert2water, water_endpts)
-soil_endpts = invert_map(soil2fert, fert_endpts)
-seed_endpts = invert_map(seed2soil, soil_endpts)
-
-
-def in_seed_range(seeds, s):
-  return any([seeds[i] <= s <= seeds[i+1] for i in range(0, len(seeds), 2)])
-
-
-# Intersect seed endpoints with seed ranges.
-seed_endpts = [s for s in seed_endpts if in_seed_range(seeds, s)]
-# Make sure to include the endpoints of the seed ranges.
-seed_endpts = sorted(set(seed_endpts) | set(seeds))
-print(seed_endpts)
-print([(s, seed2location(s)) for s in seed_endpts])
-
-print('Part 2:')
-print(min([seed2location(s) for s in seed_endpts]))
+print(min(seeds)[0])

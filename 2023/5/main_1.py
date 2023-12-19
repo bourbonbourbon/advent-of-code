@@ -24,7 +24,7 @@ def map_gen(name, index):
             if num >= source and num < source + steps:
                 diff = num - source
                 l.append((num, destination + diff))
-    # checking for any sources to destination does not exist
+    # checking for any sources for which destination does not exist
     c2 = [x[0] for x in l]
     for num in c:
         if num not in c2:
@@ -41,9 +41,7 @@ def solve_seeds(maps):
             index = nums.index(val)
             val = map[index][1]
         seed_location[seed] = val
-        seed_location = dict(
-            sorted(seed_location.items(), key=lambda item: item[1]))
-    print(list(seed_location.values())[0])
+    return min(seed_location.items(), key=lambda x: x[1])[1]
 
 
 with open("input.txt", "r") as file:
@@ -64,4 +62,4 @@ map_names = ["seed-to-soil", "soil-to-fertilizer",
 for index, name in enumerate(map_names):
     maps.append(map_gen(name, index))
 
-solve_seeds(maps)
+print(solve_seeds(maps))
